@@ -1,4 +1,4 @@
-** pip install "numpy>2" "typing-extensions>=4.10.0"
+### pip install "numpy>2" "typing-extensions>=4.10.0"
 
 # deepface will need tf js to import work
 
