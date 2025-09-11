@@ -86,7 +86,7 @@ def process_video(input_path, output_path=None):
     print(f"Output will be saved to: {output_path}")
     
     # Set up video writer
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter.fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     
     if not out.isOpened():
