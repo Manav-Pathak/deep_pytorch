@@ -1,0 +1,8 @@
+.venv/
+deepface_processed/
+__pycache__/
+*.jpg
+*.pkl
+Pathak/
+uploads/
+*.h5
