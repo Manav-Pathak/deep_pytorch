@@ -3,14 +3,12 @@ import cv2
 import time
 import os
 from deepface import DeepFace
-
 import numpy as np
 
 # Parameters
 ANALYZE_EVERY_N_FRAMES = 15  # reduce CPU — analyze once every N frames
 OUTPUT_FOLDER = "deepface_processed"  # Output folder for processed videos
 
-#emotion_model = Emotion.loadModel()
 
 def analyze_emotion_pytorch(face_img):
     """Try PyTorch-based detectors for emotion analysis"""
@@ -27,7 +25,7 @@ def analyze_emotion_pytorch(face_img):
                 actions=['emotion'], 
                 detector_backend=detector, 
                 enforce_detection=False,
-                #models={"emotion": emotion_model}
+                
             )
             
             # Handle case where result might be a list or dict
@@ -68,7 +66,7 @@ def process_video(input_path, output_path=None):
     if output_path is None:
         input_filename = os.path.basename(input_path)
         name, ext = os.path.splitext(input_filename)
-        output_path = os.path.join(OUTPUT_FOLDER, f"{name}_analyzed{ext}")
+        output_path = os.path.join(OUTPUT_FOLDER, f"{name}_emotion_analyzed{ext}")
     
     # Open input video
     cap = cv2.VideoCapture(input_path)
@@ -86,7 +84,7 @@ def process_video(input_path, output_path=None):
     print(f"Output will be saved to: {output_path}")
     
     # Set up video writer
-    fourcc = cv2.VideoWriter.fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     
     if not out.isOpened():
@@ -196,7 +194,7 @@ def process_video(input_path, output_path=None):
         total_time = time.time() - start_time
         print(f"\nVideo processing complete!")
         print(f"Total frames processed: {frame_count}")
-        print(f"Total time: {total_time:.1f} seconds or {total_time/60:.1f} minutes")
+        print(f"Total time: {total_time:.1f} seconds")
         print(f"Average processing FPS: {frame_count / total_time:.1f}")
         print(f"Output saved to: {output_path}")
         
