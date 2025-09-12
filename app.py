@@ -127,14 +127,18 @@ def video_analysis_thread(video_path, video_name):
         processing_status["video"] = True
         video_results[video_name] = {"status": "processing", "progress": 0}
         
+        # Create unique output path for this video
+        output_path = f"deepface_processed/{video_name}_emotion_analyzed.mp4"
+        
         # Process video (this will take longer)
-        success = process_video(video_path)
+        success, emotion_analysis = process_video(video_path, output_path)
         
         if success:
             video_results[video_name] = {
                 "status": "completed",
                 "success": True,
-                "output_path": f"deepface_processed/{video_name}_emotion_analyzed.mp4"
+                "output_path": output_path,
+                "emotion_analysis": emotion_analysis
             }
         else:
             video_results[video_name] = {
@@ -163,8 +167,9 @@ if uploaded_file is not None:
     is_audio = file_extension in ['wav', 'mp3']
     
     if is_video:
-        # Save uploaded video
-        video_path = f"temp_video.{file_extension}"
+        # Save uploaded video with unique name
+        video_name = uploaded_file.name.split('.')[0]
+        video_path = f"temp_{video_name}.{file_extension}"
         with open(video_path, "wb") as f:
             f.write(uploaded_file.read())
         
@@ -295,6 +300,51 @@ if uploaded_file is not None:
         if video_result["status"] == "completed" and video_result["success"]:
             st.success("🎬 **Video Analysis Complete!**")
             
+            # Display facial emotion analysis results
+            if "emotion_analysis" in video_result and video_result["emotion_analysis"]:
+                emotion_data = video_result["emotion_analysis"]
+                
+                st.subheader("😊 **Facial Emotion Analysis:**")
+                
+                if emotion_data.get("total_detections", 0) > 0:
+                    # Create columns for emotion breakdown
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        if "positive" in emotion_data:
+                            st.metric("Positive Emotions", 
+                                    f"{emotion_data['positive']['percentage']}%",
+                                    f"{emotion_data['positive']['count']} detections")
+                    
+                    with col2:
+                        if "negative" in emotion_data:
+                            st.metric("Negative Emotions", 
+                                    f"{emotion_data['negative']['percentage']}%",
+                                    f"{emotion_data['negative']['count']} detections")
+                    
+                    with col3:
+                        if "neutral" in emotion_data:
+                            st.metric("Neutral Emotions", 
+                                    f"{emotion_data['neutral']['percentage']}%",
+                                    f"{emotion_data['neutral']['count']} detections")
+                    
+                    # Show dominant emotion
+                    if emotion_data.get("dominant_emotion"):
+                        dominant = emotion_data["dominant_emotion"]
+                        dominant_pct = emotion_data.get("dominant_percentage", 0)
+                        
+                        # Color code based on dominant emotion
+                        if dominant == "positive":
+                            st.success(f"🌟 **Dominant Facial Emotion: {dominant.upper()}** ({dominant_pct}%)")
+                        elif dominant == "negative":
+                            st.error(f"😔 **Dominant Facial Emotion: {dominant.upper()}** ({dominant_pct}%)")
+                        else:
+                            st.info(f"😐 **Dominant Facial Emotion: {dominant.upper()}** ({dominant_pct}%)")
+                    
+                    st.info(f"📊 Total emotion detections: {emotion_data['total_detections']}")
+                else:
+                    st.warning("⚠️ No facial emotions detected in the video")
+            
             # Show processed video
             if os.path.exists(video_result["output_path"]):
                 st.video(video_result["output_path"])
@@ -317,12 +367,90 @@ if uploaded_file is not None:
             audio_sentiment = audio_results[video_name]["sentiment"]
             speed_category = audio_results[video_name]["category"]
             
-            # Create overall assessment
-            if audio_sentiment == "positive" and speed_category == "Normal":
-                st.success(" Excellent! Your speech is well-paced and positive.")
-            elif audio_sentiment == "positive":
-                st.info(f" Good positivity, but speech is {speed_category.lower()}. Consider adjusting pace.")
-            elif speed_category == "Normal":
-                st.info(" Good pacing, but consider improving emotional tone.")
+            # Get facial emotion data if available
+            facial_emotion = None
+            if "emotion_analysis" in video_results[video_name] and video_results[video_name]["emotion_analysis"]:
+                emotion_data = video_results[video_name]["emotion_analysis"]
+                if emotion_data.get("total_detections", 0) > 0:
+                    facial_emotion = emotion_data.get("dominant_emotion")
+            
+            # Create comprehensive assessment
+            assessment_factors = []
+            positive_factors = 0
+            total_factors = 0
+            
+            # Audio sentiment assessment
+            if audio_sentiment == "positive":
+                assessment_factors.append("✅ Positive audio sentiment")
+                positive_factors += 1
+            elif audio_sentiment == "negative":
+                assessment_factors.append("❌ Negative audio sentiment")
             else:
-                st.warning(" Room for improvement in both pacing and emotional tone.")
+                assessment_factors.append("⚪ Neutral audio sentiment")
+                positive_factors += 0.5
+            total_factors += 1
+            
+            # Speech speed assessment
+            if speed_category == "Normal":
+                assessment_factors.append("✅ Good speech pacing")
+                positive_factors += 1
+            elif speed_category == "Slow":
+                assessment_factors.append("🐌 Speech is too slow")
+            else:
+                assessment_factors.append("🏃 Speech is too fast")
+            total_factors += 1
+            
+            # Facial emotion assessment
+            if facial_emotion:
+                if facial_emotion == "positive":
+                    assessment_factors.append("✅ Positive facial expressions")
+                    positive_factors += 1
+                elif facial_emotion == "negative":
+                    assessment_factors.append("❌ Negative facial expressions")
+                else:
+                    assessment_factors.append("⚪ Neutral facial expressions")
+                    positive_factors += 0.5
+                total_factors += 1
+            else:
+                assessment_factors.append("⚠️ No facial emotions detected")
+            
+            # Display assessment factors
+            for factor in assessment_factors:
+                st.write(f"• {factor}")
+            
+            # Overall score and recommendation
+            if total_factors > 0:
+                overall_score = (positive_factors / total_factors) * 100
+                
+                st.write("---")
+                if overall_score >= 80:
+                    st.success(f"🌟 **Excellent Performance!** (Score: {overall_score:.0f}%)")
+                    st.write("Your communication is very effective across all dimensions.")
+                elif overall_score >= 60:
+                    st.info(f"👍 **Good Performance** (Score: {overall_score:.0f}%)")
+                    st.write("Strong communication with room for minor improvements.")
+                elif overall_score >= 40:
+                    st.warning(f"⚡ **Needs Improvement** (Score: {overall_score:.0f}%)")
+                    st.write("Several areas could be enhanced for better communication.")
+                else:
+                    st.error(f"🎯 **Significant Improvement Needed** (Score: {overall_score:.0f}%)")
+                    st.write("Focus on improving multiple aspects of your communication.")
+                
+                # Specific recommendations
+                recommendations = []
+                if audio_sentiment == "negative":
+                    recommendations.append("🎭 Work on maintaining a more positive tone")
+                if speed_category != "Normal":
+                    if speed_category == "Slow":
+                        recommendations.append("⚡ Try speaking slightly faster for better engagement")
+                    else:
+                        recommendations.append("🐌 Slow down your speech for better clarity")
+                if facial_emotion == "negative":
+                    recommendations.append("😊 Practice more positive facial expressions")
+                elif not facial_emotion:
+                    recommendations.append("📹 Ensure good lighting and camera positioning for emotion detection")
+                
+                if recommendations:
+                    st.write("**💡 Recommendations:**")
+                    for rec in recommendations:
+                        st.write(f"• {rec}")

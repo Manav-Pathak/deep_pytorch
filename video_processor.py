@@ -75,7 +75,7 @@ def process_video(input_path, output_path=None):
     # Check if input file exists
     if not os.path.exists(input_path):
         print(f"Error: Input video '{input_path}' not found!")
-        return False
+        return False, None
     
     # Create output folder if it doesn't exist
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -93,7 +93,7 @@ def process_video(input_path, output_path=None):
     cap = cv2.VideoCapture(input_path)
     if not cap.isOpened():
         print(f"Error: Cannot open input video '{input_path}'")
-        return False
+        return False, None
 
     # Get video properties
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -111,7 +111,7 @@ def process_video(input_path, output_path=None):
     if not out.isOpened():
         print(f"Error: Cannot create output video '{output_path}'")
         cap.release()
-        return False
+        return False, None
 
     # Load OpenCV's Haar cascade for face detection
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -229,21 +229,38 @@ def process_video(input_path, output_path=None):
         # Calculate and display final dominant emotion
         print(f"\nEmotion Analysis Summary:")
         total_detections = sum(emotion_counts.values())
+        emotion_analysis_results = {}
+        
         if total_detections > 0:
             print(f"Total emotion detections: {total_detections}")
             for emotion_group, count in emotion_counts.items():
                 percentage = (count / total_detections) * 100
                 print(f"  {emotion_group.capitalize()}: {count} ({percentage:.1f}%)")
+                emotion_analysis_results[emotion_group] = {
+                    'count': count,
+                    'percentage': round(percentage, 1)
+                }
             
             # Find dominant emotion group
             dominant_emotion_group = max(emotion_counts, key=lambda k: emotion_counts[k])
             dominant_count = emotion_counts[dominant_emotion_group]
             dominant_percentage = (dominant_count / total_detections) * 100
             print(f"\nFinal Dominant Emotion: {dominant_emotion_group.upper()} ({dominant_percentage:.1f}%)")
+            
+            emotion_analysis_results['dominant_emotion'] = dominant_emotion_group
+            emotion_analysis_results['dominant_percentage'] = round(dominant_percentage, 1)
+            emotion_analysis_results['total_detections'] = total_detections
         else:
             print("No emotions detected during video processing.")
+            emotion_analysis_results = {
+                'dominant_emotion': None,
+                'total_detections': 0,
+                'positive': {'count': 0, 'percentage': 0},
+                'negative': {'count': 0, 'percentage': 0},
+                'neutral': {'count': 0, 'percentage': 0}
+            }
         
-        return True
+        return True, emotion_analysis_results
 
 def main():
     """Main function for command line usage"""
@@ -262,9 +279,11 @@ def main():
     # input_path = sys.argv[1]
     output_path = None  # Will auto-generate output filename
     
-    success = process_video(input_path, output_path)
+    success, emotion_results = process_video(input_path, output_path)
     if success:
         print("Video processing completed successfully!")
+        if emotion_results:
+            print("Emotion analysis results:", emotion_results)
     else:
         print("Video processing failed!")
 
