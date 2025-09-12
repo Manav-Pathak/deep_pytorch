@@ -222,7 +222,7 @@ def process_video(input_path, output_path=None):
         total_time = time.time() - start_time
         print(f"\nVideo processing complete!")
         print(f"Total frames processed: {frame_count}")
-        print(f"Total time: {total_time:.1f} seconds")
+        print(f"Total time: {total_time:.1f} seconds or {total_time/60:.1f} minutes")
         print(f"Average processing FPS: {frame_count / total_time:.1f}")
         print(f"Output saved to: {output_path}")
         
