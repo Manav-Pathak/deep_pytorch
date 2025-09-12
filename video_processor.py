@@ -9,6 +9,24 @@ import numpy as np
 ANALYZE_EVERY_N_FRAMES = 15  # reduce CPU — analyze once every N frames
 OUTPUT_FOLDER = "deepface_processed"  # Output folder for processed videos
 
+# Emotion grouping
+EMOTION_GROUPS = {
+    'positive': ['happy', 'surprise'],
+    'negative': ['sad', 'angry', 'fear', 'disgust'],
+    'neutral': ['neutral']
+}
+
+def get_emotion_group(emotion):
+    """Map individual emotion to emotion group (positive/negative/neutral)"""
+    if not emotion:
+        return None
+    
+    emotion_lower = emotion.lower()
+    for group, emotions in EMOTION_GROUPS.items():
+        if emotion_lower in emotions:
+            return group
+    return 'neutral'  # Default to neutral if emotion not found
+
 
 def analyze_emotion_pytorch(face_img):
     """Try PyTorch-based detectors for emotion analysis"""
@@ -67,6 +85,9 @@ def process_video(input_path, output_path=None):
         input_filename = os.path.basename(input_path)
         name, ext = os.path.splitext(input_filename)
         output_path = os.path.join(OUTPUT_FOLDER, f"{name}_emotion_analyzed{ext}")
+    
+    # Initialize emotion counters
+    emotion_counts = {'positive': 0, 'negative': 0, 'neutral': 0}
     
     # Open input video
     cap = cv2.VideoCapture(input_path)
@@ -141,7 +162,14 @@ def process_video(input_path, output_path=None):
                     if face_img.size != 0:
                         result = analyze_emotion_pytorch(face_img)
                         if result:
-                            last_result = result
+                            # Group the emotion and update counters
+                            dominant_emotion, score = result
+                            emotion_group = get_emotion_group(dominant_emotion)
+                            if emotion_group:
+                                emotion_counts[emotion_group] += 1
+                                last_result = (emotion_group, score)
+                            else:
+                                last_result = result
                         # If result is None, keep the last_result for display
                     else:
                         last_result = None
@@ -197,6 +225,23 @@ def process_video(input_path, output_path=None):
         print(f"Total time: {total_time:.1f} seconds")
         print(f"Average processing FPS: {frame_count / total_time:.1f}")
         print(f"Output saved to: {output_path}")
+        
+        # Calculate and display final dominant emotion
+        print(f"\nEmotion Analysis Summary:")
+        total_detections = sum(emotion_counts.values())
+        if total_detections > 0:
+            print(f"Total emotion detections: {total_detections}")
+            for emotion_group, count in emotion_counts.items():
+                percentage = (count / total_detections) * 100
+                print(f"  {emotion_group.capitalize()}: {count} ({percentage:.1f}%)")
+            
+            # Find dominant emotion group
+            dominant_emotion_group = max(emotion_counts, key=lambda k: emotion_counts[k])
+            dominant_count = emotion_counts[dominant_emotion_group]
+            dominant_percentage = (dominant_count / total_detections) * 100
+            print(f"\nFinal Dominant Emotion: {dominant_emotion_group.upper()} ({dominant_percentage:.1f}%)")
+        else:
+            print("No emotions detected during video processing.")
         
         return True
 
