@@ -80,9 +80,9 @@ def extract_wpm(file_path):
     return wpm
 
 def categorize_wpm(wpm):
-    if wpm < 160:
+    if wpm < 135:
         return "Slow"
-    elif 160 <= wpm <= 195:
+    elif 135 <= wpm <= 190:
         return "Normal"
     else:
         return "Fast"
