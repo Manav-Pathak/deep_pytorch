@@ -374,7 +374,7 @@ if uploaded_file is not None:
                 if emotion_data.get("total_detections", 0) > 0:
                     facial_emotion = emotion_data.get("dominant_emotion")
             
-            # Create comprehensive assessment
+            # Create comprehensive assessment -------------------*******************************************************************
             assessment_factors = []
             positive_factors = 0
             total_factors = 0
