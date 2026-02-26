@@ -1,0 +1,44 @@
+# Virtual environment
+venv/
+
+# DeepFace processed files
+deepface_processed/
+audio/
+
+# Python cache
+__pycache__/
+
+# Image files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp3
+*.wav
+
+# Pickle files
+#*.pkl
+
+# Model files
+*.h5
+*.pb
+*.pth
+*.onnx
+*.mp4
+
+# Project directories
+Pathak/
+uploads/
+IPD
+video_no_haar.py
+test.py
+single_img.py
+Hands_file_upload.ipynb
+deepface_live_emotion.py
+
+*.ini
+
+
+# Already have this
+*.zip
+readme_my.md
