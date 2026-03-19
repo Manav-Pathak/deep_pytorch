@@ -48,18 +48,16 @@ deep_pytorch/
 |   |-- extract_keypoints.py     # Pose keypoint dataset extraction utility
 |-- Sentiment Analysis/          # Sentiment training/inference utilities
 |-- Speech Speed/                # Speech speed related utilities
-|-- requirements.txt
-|-- README.md
 ```
 
 ## Sample Outputs
 
 <p align="center">
-	<img width="1245" height="747" alt="Output 1" src="https://github.com/user-attachments/assets/6518b59a-7f26-4b97-8437-aba8d178f166" />
+	<img width="1100" height="600" alt="Output 1" src="https://github.com/user-attachments/assets/6518b59a-7f26-4b97-8437-aba8d178f166" />
 </p>
 
 <p align="center">
-	<img width="1244" height="693" alt="Output 2" src="https://github.com/user-attachments/assets/358d330f-5d0b-4e7e-8922-eacfa7ecd2af" />
+	<img width="1100" height="600" alt="Output 2" src="https://github.com/user-attachments/assets/358d330f-5d0b-4e7e-8922-eacfa7ecd2af" />
 </p>
 
 ## Run Locally
