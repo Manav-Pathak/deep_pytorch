@@ -53,11 +53,15 @@ deep_pytorch/
 ## Sample Outputs
 
 <p align="center">
-	<img width="1100" height="600" alt="Output 1" src="https://github.com/user-attachments/assets/6518b59a-7f26-4b97-8437-aba8d178f166" />
+	<img width="400" height="300" alt="Output 1" src="https://github.com/user-attachments/assets/6518b59a-7f26-4b97-8437-aba8d178f166" />
 </p>
 
 <p align="center">
-	<img width="1100" height="600" alt="Output 2" src="https://github.com/user-attachments/assets/358d330f-5d0b-4e7e-8922-eacfa7ecd2af" />
+	<img width="400" height="300" alt="Output 2" src="https://github.com/user-attachments/assets/358d330f-5d0b-4e7e-8922-eacfa7ecd2af" />
+</p>
+
+<p align="center">
+  <img width="600" height="500" alt="Output 3" src="https://github.com/user-attachments/assets/c84540de-2c2c-4796-b64f-317e9f8cfd56"  />
 </p>
 
 ## Run Locally
