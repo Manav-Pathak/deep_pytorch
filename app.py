@@ -169,7 +169,7 @@ if uploaded_file is not None:
     if is_video:
         # Save uploaded video with unique name
         video_name = uploaded_file.name.split('.')[0]
-        video_path = f"temp_{video_name}.{file_extension}"
+        video_path = f"temp/temp_{video_name}.{file_extension}"
         with open(video_path, "wb") as f:
             f.write(uploaded_file.read())
         
