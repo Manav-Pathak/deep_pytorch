@@ -69,7 +69,7 @@ deep_pytorch/
 ### 1) Clone and install dependencies
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Manav-Pathak/deep_pytorch.git
 cd deep_pytorch
 pip install -r requirements.txt
 ```
